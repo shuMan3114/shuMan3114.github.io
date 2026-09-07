@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<title>Himanshu — Machine learning theory, UIUC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova:ital,wght@0,400;0,600;0,700;1,400&family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light only;
+    --black:#000;
+    --ink:#33323D;
+    --line:#EAEAEA;
+    --paper:#FFF;
+    --wash:#F5F5F5;
+    --maxw:1110px;
+    --serif:"Ibarra Real Nova", Georgia, serif;
+    --sans:"Public Sans", system-ui, sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{background:#FFF;-webkit-text-size-adjust:100%;forced-color-adjust:none}
+  body{margin:0;background:#FFF;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75}
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--black);outline-offset:3px}
+
+  .wrap{width:min(100% - 3rem, var(--maxw));margin-inline:auto}
+  @media (max-width:600px){.wrap{width:min(100% - 2rem, var(--maxw))}}
+  .rule{border:0;border-top:1px solid var(--line);margin:0}
+
+  h1,h2,h3,h4{font-family:var(--serif);color:var(--black);font-weight:700;line-height:1.15;margin:0}
+  h1{font-size:clamp(2.4rem,6vw,3.25rem);letter-spacing:-.5px}
+  h2{font-size:clamp(1.9rem,4.5vw,2.4rem);letter-spacing:-.36px}
+  h3{font-size:1.5rem}
+  h4{font-size:1.1rem}
+  p{margin:0}
+
+  .btn{display:inline-block;font-weight:700;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;
+    text-decoration:none;padding:.9rem 1.75rem;border:1px solid var(--black);background:transparent;color:var(--black);
+    cursor:pointer;transition:background-color .15s linear,color .15s linear}
+  .btn:hover{background:var(--black);color:#fff}
+  .btn--solid{background:var(--black);color:#fff}
+  .btn--solid:hover{background:#fff;color:var(--black)}
+  .btn--invert{border-color:#fff;color:#fff}
+  .btn--invert:hover{background:#fff;color:var(--black)}
+  .btn--sm{padding:.65rem 1.25rem}
+
+  /* header */
+  .site-head{padding:2.25rem 0;position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);z-index:30;border-bottom:1px solid transparent}
+  .site-head.stuck{border-bottom-color:var(--line);padding:1.25rem 0}
+  .site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .logo{display:inline-flex;align-items:center;gap:.65rem;text-decoration:none}
+  .logo span{font-family:var(--serif);font-weight:700;color:var(--black);font-size:1.05rem;letter-spacing:.5px}
+  .nav{display:flex;gap:2rem}
+  .nav a{text-decoration:none;font-weight:700;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;
+    color:var(--ink);padding-bottom:.25rem;border-bottom:2px solid transparent}
+  .nav a:hover{color:var(--black)}
+  .nav a.current{color:var(--black);border-bottom-color:var(--black)}
+  .burger{display:none;background:none;border:0;padding:.5rem;cursor:pointer}
+
+  @media (max-width:860px){
+    .burger{display:block}
+    .nav{position:fixed;inset:0 0 0 auto;width:min(17rem,74vw);background:var(--ink);flex-direction:column;
+      gap:1.6rem;padding:6.5rem 2rem;z-index:40;transform:translateX(100%);transition:transform .25s ease}
+    .nav a{color:#fff}
+    .nav a:hover,.nav a.current{color:#fff;border-bottom-color:#fff}
+    body.nav-open .nav{transform:translateX(0)}
+    .scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:35;opacity:0;pointer-events:none;transition:opacity .25s}
+    body.nav-open .scrim{opacity:1;pointer-events:auto}
+  }
+  @media (prefers-color-scheme:dark){
+    html,body{background:#FFF !important;color:#33323D !important}
+    h1,h2,h3,h4,.logo span,.nav a.current,.tag,.when,.countdown-label,.clock span,label{color:#000 !important}
+    p,li,small,.nav a{color:#33323D !important}
+    .site-head{background:#FFF !important}
+    .art{background:#F5F5F5 !important}
+    .rule,.row,.rows,.posts,.post-link{border-color:#EAEAEA !important}
+    .cta,.site-foot{background:#33323D !important}
+    .cta h2,.cta p,.site-foot,.site-foot .logo span,.site-foot small{color:#FFF !important}
+    .btn{color:#000 !important;border-color:#000 !important;background:transparent !important}
+    .btn--solid{background:#000 !important;color:#FFF !important}
+    .btn--invert{background:transparent !important;color:#FFF !important;border-color:#FFF !important}
+    @media (max-width:860px){ .nav{background:#33323D !important} .nav a{color:#FFF !important} }
+  }
+  @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+
+  /* art placeholders */
+  .art{background:var(--wash);position:relative;overflow:hidden}
+  .art::after{content:"";position:absolute;inset:0}
+  .art--me::after{background:radial-gradient(circle at 50% 34%, #cfcfcf 0 20%, transparent 20.5%),linear-gradient(0deg,#e2e2e2 0 34%,#efefef 34%)}
+  .art--r1::after{background:repeating-linear-gradient(90deg,#e8e8e8 0 10px,#d6d6d6 10px 20px)}
+  .art--r2::after{background:radial-gradient(circle at 68% 32%,#c8c8c8 0 24%,transparent 24.5%),linear-gradient(180deg,#efefef,#d9d9d9)}
+  .art--c1::after{background:linear-gradient(135deg,#e9e9e9 0 50%,#cbcbcb 50%)}
+  .art--k1::after{background:conic-gradient(from 200deg at 42% 58%,#eaeaea 0 25%,#d3d3d3 25% 50%,#eaeaea 50% 75%,#cdcdcd 75%)}
+  .art--s1::after{background:repeating-linear-gradient(0deg,#e9e9e9 0 8px,#d7d7d7 8px 16px),linear-gradient(90deg,#efefef,#d5d5d5)}
+  .art--s2::after{background:radial-gradient(circle at 30% 60%,#c9c9c9 0 20%,transparent 20.5%),radial-gradient(circle at 72% 34%,#d6d6d6 0 16%,transparent 16.5%),linear-gradient(160deg,#f0f0f0,#dcdcdc)}
+  .art--s3::after{background:linear-gradient(115deg,#ededed 0 38%,#d4d4d4 38% 55%,#e6e6e6 55%)}
+  .art--b1::after{background:linear-gradient(45deg,#e0e0e0 0 25%,transparent 25% 75%,#e0e0e0 75%),linear-gradient(#efefef,#d8d8d8)}
+
+  /* hero */
+  .hero{display:grid;gap:2rem;padding:2rem 0 4rem}
+  .hero .art{aspect-ratio:1/1;max-width:240px}
+  .hero .flag{width:64px;height:2px;background:var(--black);margin:1.75rem 0}
+  .hero p{max-width:58ch;margin-bottom:1.75rem}
+  .hero .actions{display:flex;flex-wrap:wrap;gap:1rem}
+  @media (min-width:900px){
+    .hero{grid-template-columns:280px 1fr;gap:4rem;align-items:start;padding:3rem 0 5rem}
+    .hero .art{aspect-ratio:1/1;height:auto}
+  }
+
+  /* section shell */
+  .section{padding:4.5rem 0}
+  .section-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:2.5rem}
+  .section-head p{max-width:52ch;font-size:.95rem}
+
+  /* interests */
+  .interests{display:grid;gap:2rem}
+  @media (min-width:800px){.interests{grid-template-columns:repeat(3,1fr);gap:3rem}}
+  .interest{border-top:2px solid var(--black);padding-top:1.25rem}
+  .interest h4{margin-bottom:.6rem}
+  .interest p{font-size:.95rem}
+  .interests-cta{margin-top:3rem;display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem}
+  .interests-cta p{font-size:.95rem;max-width:44ch}
+
+  /* research entries */
+  .entry{display:grid;gap:2rem;padding:2.5rem 0;align-items:start}
+  .entry .art{aspect-ratio:4/3}
+  .entry h3{margin-bottom:.75rem}
+  .entry p{margin-bottom:1.25rem;max-width:60ch}
+  .tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--black);border:1px solid var(--line);padding:.25rem .7rem;margin:0 .4rem .4rem 0}
+  @media (min-width:900px){
+    .entry{grid-template-columns:minmax(0,420px) 1fr;gap:5rem;padding:3rem 0}
+    .entry .art{aspect-ratio:auto;height:330px}
+  }
+
+  /* corporate / collaborations lists */
+  .rows{border-top:1px solid var(--line)}
+  .row{display:grid;gap:.75rem;padding:2rem 0;border-bottom:1px solid var(--line)}
+  .row .when{font-size:.8125rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--black)}
+  .row p{max-width:60ch}
+  @media (min-width:800px){.row{grid-template-columns:180px 1fr;gap:3rem;align-items:start}}
+
+  /* cta band */
+  .cta{background:var(--ink);color:#fff;padding:2.5rem;display:grid;gap:1.75rem;margin:4rem 0}
+  .cta h2{color:#fff;font-size:1.7rem;max-width:18ch}
+  .cta p{font-size:.95rem;max-width:46ch;opacity:.85}
+  @media (min-width:900px){.cta{grid-template-columns:1fr auto;align-items:center;padding:3rem 3.5rem}}
+
+  /* blog */
+  .posts{border-top:1px solid var(--line)}
+  .post-link{display:grid;gap:.5rem;padding:2.25rem 0;border-bottom:1px solid var(--line);text-decoration:none}
+  .post-link:hover h3{text-decoration:underline;text-underline-offset:4px}
+  .post-link .when{font-size:.8125rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+  .post-link p{max-width:64ch;font-size:.95rem}
+  @media (min-width:800px){.post-link{grid-template-columns:180px 1fr;gap:3rem;align-items:start}}
+
+  .countdown{border-top:2px solid var(--black);padding:2.5rem 0 3rem}
+  .countdown-label{font-size:.8125rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--black);margin-bottom:1.5rem}
+  .clock{display:flex;gap:3rem;flex-wrap:wrap}
+  .clock div{display:flex;flex-direction:column}
+  .clock span{font-family:var(--serif);font-weight:700;color:var(--black);font-size:clamp(2.75rem,9vw,4.5rem);line-height:1;font-variant-numeric:tabular-nums}
+  .clock small{font-size:.8125rem;letter-spacing:1.5px;text-transform:uppercase;margin-top:.5rem}
+  .article{max-width:68ch;padding:3rem 0 4rem}
+  .article .when{font-size:.8125rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1rem;display:block}
+  .article h1{margin-bottom:1.5rem}
+  .article p{margin-bottom:1.4rem}
+  .article h3{margin:2.5rem 0 1rem}
+  .article blockquote{margin:2rem 0;padding-left:1.5rem;border-left:2px solid var(--black);font-family:var(--serif);font-size:1.15rem;color:var(--black)}
+
+  .site-foot{background:var(--ink);color:#fff;padding:2rem 0}
+  .site-foot .wrap{display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;justify-content:space-between}
+  .site-foot .logo span{color:#fff}
+  .site-foot .logo svg rect{fill:#fff}
+  .site-foot small{opacity:.7}
+  .socials{display:flex;gap:.5rem}
+  .socials svg{width:20px;height:20px;fill:#fff;opacity:.75}
+  .socials a:hover svg{opacity:1}
+  @media (max-width:860px){.site-foot .wrap{flex-direction:column;text-align:center}}
+
+  .page{display:none}
+  .page.active{display:block}
+  .skip{position:absolute;left:-9999px}
+  .skip:focus{left:1rem;top:1rem;background:#000;color:#fff;padding:.6rem 1rem;z-index:60}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="scrim"></div>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="#/" data-nav>
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect width="10" height="10" fill="#000"/><rect x="14" y="14" width="10" height="10" fill="#000"/></svg>
+      <span>Himanshu</span>
+    </a>
+    <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+      <svg width="24" height="18" viewBox="0 0 24 18" aria-hidden="true"><g fill="#000"><rect width="24" height="2"/><rect y="8" width="24" height="2"/><rect y="16" width="24" height="2"/></g></svg>
+    </button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#/about" data-nav>About</a>
+      <a href="#/interests" data-nav>Interests</a>
+      <a href="#/research" data-nav>Research</a>
+      <a href="#/corporate" data-nav>Corporate</a>
+      <a href="#/collaborations" data-nav>Collaborations</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============ ONE-PAGER ============ -->
+<div class="page" data-route="/">
+  <div class="wrap">
+
+    <!-- About -->
+    <section class="hero" id="about">
+      <div class="art art--me"></div>
+      <div>
+        <h1>Himanshu</h1>
+        <div class="flag"></div>
+        <p style="font-family:var(--serif);font-size:1.35rem;line-height:1.5;color:var(--black);margin-bottom:1.5rem">I attempt to solve simple looking problems with over-engineered solutions.</p>
+        <p>I'm a computer science undergraduate at the University of Illinois Urbana-Champaign, graduating in May 2027, and I hope to move into academia. Broadly, my interests sit at the intersection of mathematics, neuroscience, and AI — particularly interpretability and alignment.</p>
+        <p>Right now I'm working on improving direct training algorithms for spiking neural networks, in collaboration with the Pilanci Lab at Stanford.</p>
+        <p>The rest is mostly dynamical systems, graph theory, and neuroscience concepts applied to current models and architectures, with occasional involvement in applied AI and biological tools like CRISPR.</p>
+        <div class="actions">
+          <a class="btn btn--solid" href="#/research" data-nav>Read the research</a>
+          <a class="btn" href="mailto:himanshu.udupi@gmail.com">Email me</a>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <!-- Interests -->
+    <section class="section" id="interests">
+      <div class="section-head">
+        <h2>Interests</h2>
+      </div>
+
+      <div class="interests">
+        <div class="interest">
+          <h4>Interpretability and alignment</h4>
+          <p>Understanding what happens inside a model well enough to say why it behaved a certain way, and using that to make its behaviour something you can rely on rather than hope for.</p>
+        </div>
+        <div class="interest">
+          <h4>Dynamical systems and graphs</h4>
+          <p>Treating training and inference as systems that evolve over time, and borrowing structure from graph theory to say something about where they settle.</p>
+        </div>
+        <div class="interest">
+          <h4>Neuroscience in architectures</h4>
+          <p>Spiking models and the optimisation theory behind them — which ideas from biology survive contact with a real training objective. Occasionally applied AI and biological tools like CRISPR.</p>
+        </div>
+      </div>
+
+      <div class="interests-cta">
+        <a class="btn btn--solid" href="blog.html">Blog</a>
+        <p>Longer notes on all three, written as I work through them.</p>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <!-- Research -->
+    <section class="section" id="research">
+      <div class="section-head">
+        <h2>Research</h2>
+        <p>Ongoing work in machine learning theory at UIUC.</p>
+      </div>
+
+      <article class="entry">
+        <div class="art art--r1"></div>
+        <div>
+          <h3>Globally Optimal Training of Spiking Neural Networks via Parameter Reconstruction</h3>
+          <p>With Xiaocong Yang and ChengXiang Zhai. Training an SNN normally depends on surrogate gradients, because the spike function is not differentiable, and the resulting approximation error accumulates across layers. We extend the convexification of parallel feedforward threshold networks to parallel recurrent threshold networks, which contain parallel SNNs as a structured special case, and use that to build a parameter reconstruction algorithm for training. It helps consistently across tasks, both on its own and alongside surrogate-gradient training, and the ablations show it scales with data and holds up across model configurations.</p>
+          <div>
+            <span class="tag">Convex reformulation</span>
+            <span class="tag">Spiking networks</span>
+            <span class="tag">arXiv:2605.08022</span>
+          </div>
+          <p style="margin-top:1.25rem"><a class="btn btn--sm" href="https://arxiv.org/abs/2605.08022">Read the preprint</a></p>
+        </div>
+      </article>
+
+      <hr class="rule">
+
+      <article class="entry">
+        <div class="art art--s1"></div>
+        <div>
+          <h3>Bounding the gap between sampled and complete spike dictionaries</h3>
+          <p>The previous paper proves global optimality for the training objective of parallel overparameterised SNNs, but the object that result depends on — the spike dictionary — is computationally intractable to enumerate. In practice we fall back on sampling heuristics, which carry no guarantee of stationarity and no bound on their distance from the optimum. This work aims to bound that gap theoretically: how far a sampled dictionary can sit from the complete one, and what that costs the optimality guarantee.</p>
+          <div>
+            <span class="tag">Pilanci Lab</span>
+            <span class="tag">Convex reformulation</span>
+            <span class="tag">Ongoing</span>
+          </div>
+        </div>
+      </article>
+
+      <hr class="rule">
+
+      <article class="entry">
+        <div class="art art--s2"></div>
+        <div>
+          <h3>Practical direct training algorithms for globally optimal SNN training</h3>
+          <p>Recent work establishes the stationarity of an optimal-transport-inspired training algorithm for non-differentiable objectives, which is exactly the setting a spike function puts you in. The aim here is to adapt that algorithm so it holds up on large parallel spiking networks, where the cost per step and the number of parameters both stop the original formulation from being run directly. The target is a method that keeps the theoretical footing while being cheap enough to train at a useful scale, and that can stand alongside surrogate gradients rather than only replacing them.</p>
+          <div>
+            <span class="tag">Pilanci Lab</span>
+            <span class="tag">Optimal transport</span>
+            <span class="tag">Ongoing</span>
+          </div>
+        </div>
+      </article>
+
+      <hr class="rule">
+
+      <article class="entry">
+        <div class="art art--s3"></div>
+        <div>
+          <h3>Generalisation guarantees for overparameterised parallel SNNs</h3>
+          <p>Work on convex reformulation has largely gone into solving the training objective to optimality, which says nothing about which problems the method is suited to in the first place. This project asks what populations it can handle. The parameter we are working with for now is separability between classes, and the goal is a relation between that separability and how well the trained network generalises.</p>
+          <div>
+            <span class="tag">Pilanci Lab</span>
+            <span class="tag">Generalisation</span>
+            <span class="tag">Ongoing</span>
+          </div>
+        </div>
+      </article>
+
+      <hr class="rule">
+
+      <article class="entry">
+        <div class="art art--r2"></div>
+        <div>
+          <h3>B-EDIS: measuring overthinking in reasoning chains</h3>
+          <p>An early-stage framework that treats a language model's reasoning trace as a dynamical system and scores its instability across batched samples. The open problem is segmentation — deciding where one reasoning step ends — which I'm approaching with Self-Ask and Socratic scaffolds so the measure transfers across domains.</p>
+          <div>
+            <span class="tag">Reasoning traces</span>
+            <span class="tag">Dynamical systems</span>
+            <span class="tag">In progress</span>
+          </div>
+        </div>
+      </article>
+
+      <hr class="rule">
+
+      <article class="entry">
+        <div class="art art--k1"></div>
+        <div>
+          <h3>zScore: A Universal Decentralised Reputation System for the Blockchain Economy</h3>
+          <p>With Ashutosh Sahoo, Akshay S. P., Gurukiran S., Parag Paul and Petrus C. Martens. The onchain economy is built on trustless peer-to-peer interaction, which leaves it without a way to quantify credibility and so without a way to price bad activity. zScore is a reputation primitive derived from a wallet's onchain behaviour using neural network models, combined with real-world credentials ported onchain through zkTLS. On retroactive data from lending protocols, a good zScore correlates strongly with healthy borrowing and repayment. The system flagged the February 2025 Aave liquidation event ahead of it, identifies risky wallets at a 90–95% rate, and pushes validation of its own outputs onchain, secured by slashing.</p>
+          <div>
+            <span class="tag">Reputation systems</span>
+            <span class="tag">DeFi</span>
+            <span class="tag">arXiv:2503.05718</span>
+          </div>
+          <p style="margin-top:1.25rem"><a class="btn btn--sm" href="https://arxiv.org/abs/2503.05718">Read the preprint</a></p>
+        </div>
+      </article>
+    </section>
+
+    <hr class="rule">
+
+    <!-- Corporate -->
+    <section class="section" id="corporate">
+      <div class="section-head">
+        <h2>Corporate</h2>
+        <p>Industry work and the applied side of the same skills.</p>
+      </div>
+
+      <div class="rows">
+        <div class="row">
+          <div class="when">Jun 2024 — Jun 2025</div>
+          <div>
+            <h4>AI/ML Engineer — PVL Labs (Zeru Finance)</h4>
+            <p>Built a credit scoring system for DeFi lending from unsupervised clustering and neural networks, the work that became zScore. Applied bio-inspired optimisation, particle swarm in particular, which raised model accuracy and relevance by roughly half, and turned the resulting analysis of user behaviour into findings the team used to shape protocol and business decisions.</p>
+            <p style="margin-top:1rem">zScore shipped as Zeru's core primitive: a behaviour-centric neural model that scores a wallet from its onchain history, extended with real-world credentials through zkTLS, and now the layer the protocol's undercollateralised lending is priced against.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="when">Jun — Dec 2024</div>
+          <div>
+            <h4>AI/ML Intern — PVL Labs (JustBooks, InstantAI, chAI)</h4>
+            <p>Built a fully automated clustering pipeline for unlabelled data that adaptively picks among a range of algorithms, validated it across several domains, and cut time spent on data mining and clustering by 10–20%. Later integrated it with an LLM for domain-specific feature engineering.</p>
+          </div>
+        </div>
+    </section>
+
+    <hr class="rule">
+
+    <!-- Collaborations -->
+    <section class="section" id="collaborations">
+      <div class="section-head">
+        <h2>Collaborations</h2>
+        <p>People I work with, and what came out of it.</p>
+      </div>
+
+      <div class="rows">
+        <div class="row">
+          <div class="when">Stanford</div>
+          <div>
+            <h4>Pilanci Lab, Stanford</h4>
+            <p>Ongoing work on direct training algorithms for spiking neural networks, following from the convex reformulation paper, with two follow-on projects running in different directions.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="when">Zeru Finance</div>
+          <div>
+            <h4>Ashutosh Sahoo, Akshay S. P. and Gurukiran S.</h4>
+            <p>The Zeru side of the zScore work — the lending protocol the reputation primitive was built for, and the retroactive borrowing and repayment data it was tested against.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="when">Rig AI · Georgia State</div>
+          <div>
+            <h4>Parag Paul and Petrus C. Martens</h4>
+            <p>Co-authors on zScore and final reviewers of the paper.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="when">UIUC</div>
+          <div>
+            <h4>Xiaocong Yang and ChengXiang Zhai</h4>
+            <p>Co-authors on the spiking networks paper, which convexifies parallel recurrent threshold networks and turns that into a training algorithm.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="cta">
+      <div>
+        <h2>Open to research collaborations</h2>
+        <p>Particularly on convex analysis of network training, or on measuring what reasoning models are doing when they run long.</p>
+      </div>
+      <a class="btn btn--invert" href="mailto:himanshu.udupi@gmail.com">Get in touch</a>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="logo" href="#/" data-nav>
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect width="10" height="10"/><rect x="14" y="14" width="10" height="10"/></svg>
+      <span>Himanshu</span>
+    </a>
+    <small>Urbana-Champaign, Illinois</small>
+    <div class="socials">
+      <a href="https://github.com/shuMan3114" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.7.5.7 5.6.7 11.9c0 5 3.3 9.3 7.8 10.8.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.8 2.7 1.3 3.4 1 .1-.7.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6a11.4 11.4 0 0 0 7.8-10.8C23.3 5.6 18.3.5 12 .5z"/></svg></a>
+      <a href="https://scholar.google.com/citations?user=BhUfEs8AAAAJ&amp;hl=en" aria-label="Google Scholar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 8l11 6 9-4.9V16h2V8L12 2zM5 13.2V17c0 2.2 3.1 4 7 4s7-1.8 7-4v-3.8l-7 3.8-7-3.8z"/></svg></a>
+      <a href="mailto:himanshu.udupi@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20v14H2V5zm10 8L3.2 7H20.8L12 13z"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const sectionIds = ["about","interests","research","corporate","collaborations"];
+
+function show(route){
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.dataset.route === route));
+}
+
+function route(){
+  const hash = location.hash.replace(/^#/,"") || "/";
+  closeNav();
+
+  // one-pager: everything else is a section anchor
+  show("/");
+  document.title = "Himanshu — Machine learning theory, UIUC";
+  const id = hash.replace(/^\//,"");
+  if(sectionIds.includes(id)){
+    const target = document.getElementById(id);
+    const offset = document.querySelector(".site-head").offsetHeight + 16;
+    const y = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({top: Math.max(y,0), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  } else {
+    window.scrollTo(0,0);
+  }
+  markNav("#" + hash);
+}
+
+function markNav(active){
+  document.querySelectorAll(".nav a").forEach(a => {
+    a.classList.toggle("current", a.getAttribute("href") === active || a.getAttribute("href") === "#" + active);
+  });
+}
+
+// scrollspy for the one-pager
+const spy = new IntersectionObserver(entries => {
+  if(!document.querySelector('.page[data-route="/"]').classList.contains("active")) return;
+  entries.forEach(en => { if(en.isIntersecting) markNav("#/" + en.target.id); });
+}, {rootMargin:"-45% 0px -50% 0px"});
+sectionIds.forEach(id => spy.observe(document.getElementById(id)));
+
+// sticky header state
+const head = document.querySelector(".site-head");
+addEventListener("scroll", () => head.classList.toggle("stuck", window.scrollY > 24));
+
+// mobile nav
+const burger = document.querySelector(".burger");
+const scrim = document.querySelector(".scrim");
+function closeNav(){ document.body.classList.remove("nav-open"); burger.setAttribute("aria-expanded","false"); }
+burger.addEventListener("click", () => {
+  const open = document.body.classList.toggle("nav-open");
+  burger.setAttribute("aria-expanded", String(open));
+});
+scrim.addEventListener("click", closeNav);
+addEventListener("keydown", e => { if(e.key === "Escape") closeNav(); });
+
+addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
